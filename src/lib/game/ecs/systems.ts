@@ -15,14 +15,14 @@ export function inputSystem(world: World, input: { left: boolean; right: boolean
     const physics = world.components.physics.get(entity);
     const state = world.components.state.get(entity);
     if (velocity && state) {
-      velocity.vx = 0;
       if (input.left) {
         velocity.vx = -PLAYER_SPEED;
         state.direction = 'left';
-      }
-      if (input.right) {
+      } else if (input.right) {
         velocity.vx = PLAYER_SPEED;
         state.direction = 'right';
+      } else {
+        velocity.vx = 0;
       }
     }
     if (velocity && physics && state && input.jump && physics.onGround) {
@@ -50,7 +50,7 @@ export function aiSystem(world: World): void {
 }
 // Physics System: Applies gravity and updates positions
 export function physicsSystem(world: World, deltaTime: number): void {
-  for (const entity of world.entities) {
+  for (const entity of world.components.physics.keys()) {
     const velocity = world.components.velocity.get(entity);
     const position = world.components.position.get(entity);
     if (velocity && position) {
