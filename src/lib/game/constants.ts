@@ -1,0 +1,12 @@
+export const TILE_SIZE = 40; // pixels
+export const LEVEL_WIDTH = 100; // in tiles
+export const LEVEL_HEIGHT = 15; // in tiles
+export const GRAVITY = 1800; // pixels per second squared
+export const PLAYER_SPEED = 250; // pixels per second
+export const JUMP_FORCE = 700; // pixels per second
+export const MAX_FALL_SPEED = 800; // pixels per second
+export const ENEMY_SPEED = 50;
+export const ENEMY_PATROL_RANGE = 4 * TILE_SIZE;
+export const INITIAL_LIVES = 3;
+export const INITIAL_TIME = 300; // seconds
+export const INVINCIBILITY_DURATION = 2; // seconds
