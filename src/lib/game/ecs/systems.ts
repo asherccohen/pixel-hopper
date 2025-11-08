@@ -15,14 +15,14 @@ export function inputSystem(world: World, input: { left: boolean; right: boolean
     const physics = world.components.physics.get(entity);
     const state = world.components.state.get(entity);
     if (velocity && state) {
+      velocity.vx = 0;
       if (input.left) {
         velocity.vx = -PLAYER_SPEED;
         state.direction = 'left';
-      } else if (input.right) {
+      }
+      if (input.right) {
         velocity.vx = PLAYER_SPEED;
         state.direction = 'right';
-      } else {
-        velocity.vx = 0;
       }
     }
     if (velocity && physics && state && input.jump && physics.onGround) {
@@ -50,7 +50,7 @@ export function aiSystem(world: World): void {
 }
 // Physics System: Applies gravity and updates positions
 export function physicsSystem(world: World, deltaTime: number): void {
-  for (const entity of world.components.physics.keys()) {
+  for (const entity of world.entities) {
     const velocity = world.components.velocity.get(entity);
     const position = world.components.position.get(entity);
     if (velocity && position) {
@@ -66,7 +66,7 @@ export function physicsSystem(world: World, deltaTime: number): void {
   }
 }
 // Collision System: Handles interactions between entities
-export function collisionSystem(world: World, deltaTime: number, onPlayerHit: () => void, onEnemyStomp: (enemy: Entity) => void, onCoinCollect: (coin: Entity) => void, onGoalReached: () => void): void {
+export function collisionSystem(world: World, onPlayerHit: () => void, onEnemyStomp: (enemy: Entity) => void, onCoinCollect: (coin: Entity) => void, onGoalReached: () => void): void {
   const playerEntities = Array.from(world.components.playerControlled.keys());
   if (playerEntities.length === 0) return;
   const player = playerEntities[0];
@@ -77,8 +77,8 @@ export function collisionSystem(world: World, deltaTime: number, onPlayerHit: ()
   const playerPhysics = world.components.physics.get(player);
   if (!playerPos || !playerVel || !playerCol || !playerState || !playerPhysics) return;
   const playerBounds = {
-    left: playerPos.x,
-    right: playerPos.x + playerCol.width,
+    left: playerPos.x + (TILE_SIZE - playerCol.width) / 2,
+    right: playerPos.x + (TILE_SIZE - playerCol.width) / 2 + playerCol.width,
     top: playerPos.y,
     bottom: playerPos.y + playerCol.height,
   };
@@ -115,7 +115,7 @@ export function collisionSystem(world: World, deltaTime: number, onPlayerHit: ()
         }
       }
       if (blockRenderable.type === 'ground' || (blockRenderable.type === 'coin-block' && blockState?.isCollected)) {
-        const prevPlayerBottom = playerBounds.bottom - playerVel.vy * deltaTime;
+        const prevPlayerBottom = playerBounds.bottom - playerVel.vy * 0.016; // Approx last frame
         if (playerVel.vy >= 0 && prevPlayerBottom <= blockBounds.top) {
           playerPos.y = blockBounds.top - playerCol.height;
           playerVel.vy = 0;
@@ -124,11 +124,11 @@ export function collisionSystem(world: World, deltaTime: number, onPlayerHit: ()
         } else if (playerVel.vy < 0 && playerPos.y >= blockBounds.bottom) {
           playerPos.y = blockBounds.bottom;
           playerVel.vy = 0;
-        } else if (playerVel.vx > 0 && playerBounds.right > blockBounds.left && playerBounds.left < blockBounds.left) {
-          playerPos.x = blockBounds.left - playerCol.width;
+        } else if (playerVel.vx > 0 && playerBounds.right > blockBounds.left) {
+          playerPos.x = blockBounds.left - playerCol.width - (TILE_SIZE - playerCol.width) / 2;
           playerVel.vx = 0;
-        } else if (playerVel.vx < 0 && playerBounds.left < blockBounds.right && playerBounds.right > blockBounds.right) {
-          playerPos.x = blockBounds.right;
+        } else if (playerVel.vx < 0 && playerBounds.left < blockBounds.right) {
+          playerPos.x = blockBounds.right - (TILE_SIZE - playerCol.width) / 2;
           playerVel.vx = 0;
         }
       }

@@ -1,8 +1,7 @@
 import React from 'react';
 import { TILE_SIZE } from '@/lib/game/constants';
-import { EnemyState } from '@/lib/game/types';
-import { motion } from 'framer-motion';
-const enemyVariants = {
+import { motion, Variants } from 'framer-motion';
+const enemyVariants: Variants = {
   float: {
     y: ["-5%", "5%"],
     transition: {
@@ -13,14 +12,19 @@ const enemyVariants = {
     },
   },
 };
-export const Enemy: React.FC<{ enemy: EnemyState }> = ({ enemy }) => {
+interface EnemyProps {
+  x: number;
+  y: number;
+  direction: 'left' | 'right';
+}
+export const Enemy: React.FC<EnemyProps> = ({ x, y, direction }) => {
   const style: React.CSSProperties = {
     position: 'absolute',
-    left: `${enemy.x}px`,
-    top: `${enemy.y}px`,
+    left: `${x}px`,
+    top: `${y}px`,
     width: `${TILE_SIZE}px`,
     height: `${TILE_SIZE}px`,
-    transform: enemy.direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)',
+    transform: direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)',
   };
   return (
     <motion.div

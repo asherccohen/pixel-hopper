@@ -1,9 +1,8 @@
 import React from 'react';
-import { useGameStore } from '@/lib/game/store';
 import { TILE_SIZE } from '@/lib/game/constants';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
-const playerVariants = {
+import { motion, Variants } from 'framer-motion';
+const playerVariants: Variants = {
   idle: {
     scaleY: [1, 0.95, 1],
     transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
@@ -19,17 +18,19 @@ const playerVariants = {
     transition: { duration: 0.2, ease: "easeIn" },
   },
 };
-export const Player: React.FC = () => {
-  const playerX = useGameStore((s) => s.player.x);
-  const playerY = useGameStore((s) => s.player.y);
-  const direction = useGameStore((s) => s.player.direction);
-  const isInvincible = useGameStore((s) => s.player.isInvincible);
-  const isJumping = useGameStore((s) => s.player.isJumping);
-  const onGround = useGameStore((s) => s.player.onGround);
+interface PlayerProps {
+  x: number;
+  y: number;
+  direction: 'left' | 'right';
+  isInvincible: boolean;
+  isJumping: boolean;
+  onGround: boolean;
+}
+export const Player: React.FC<PlayerProps> = ({ x, y, direction, isInvincible, isJumping, onGround }) => {
   const style: React.CSSProperties = {
     position: 'absolute',
-    left: `${playerX}px`,
-    top: `${playerY}px`,
+    left: `${x}px`,
+    top: `${y}px`,
     width: `${TILE_SIZE}px`,
     height: `${TILE_SIZE}px`,
     transform: direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)',
