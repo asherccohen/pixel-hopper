@@ -63,25 +63,50 @@ const EndScreen: React.FC<{ message: string }> = ({ message }) => {
     </div>
   );
 };
+const PauseMenu: React.FC = () => {
+  const togglePause = useGameStore((s) => s.togglePause);
+  const resetGame = useGameStore((s) => s.resetGame);
+  return (
+    <div className="absolute inset-0 w-full h-full bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-8 z-20">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="text-center"
+      >
+        <h1 className="text-8xl font-display font-bold mb-12">Paused</h1>
+        <div className="flex flex-col gap-6">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              onClick={togglePause}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold text-2xl px-12 py-6 rounded-lg shadow-lg border-4 border-white/50 w-64"
+            >
+              Resume
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              onClick={resetGame}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl px-12 py-6 rounded-lg shadow-lg border-4 border-white/50 w-64"
+            >
+              Restart
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 export function HomePage() {
   const status = useGameStore((s) => s.status);
   return (
     <main className="w-screen h-screen bg-black flex items-center justify-center">
       <div className="w-full h-full max-w-[1280px] aspect-video relative">
         {status === 'startScreen' && <StartScreen />}
-        {status === 'playing' && <GameCanvas />}
-        {status === 'gameOver' && (
-          <>
-            <GameCanvas />
-            <EndScreen message="Game Over" />
-          </>
-        )}
-        {status === 'win' && (
-          <>
-            <GameCanvas />
-            <EndScreen message="You Win!" />
-          </>
-        )}
+        {(status === 'playing' || status === 'paused' || status === 'gameOver' || status === 'win') && <GameCanvas />}
+        {status === 'paused' && <PauseMenu />}
+        {status === 'gameOver' && <EndScreen message="Game Over" />}
+        {status === 'win' && <EndScreen message="You Win!" />}
       </div>
     </main>
   );

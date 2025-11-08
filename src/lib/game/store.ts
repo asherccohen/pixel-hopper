@@ -50,6 +50,7 @@ const getInitialState = (): GameState => {
       onGround: false,
       direction: 'right',
       isInvincible: false,
+      isJumping: false,
     },
     enemies,
     level,
@@ -67,6 +68,14 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
   resetGame: () => {
     set(getInitialState());
+  },
+  togglePause: () => {
+    const status = get().status;
+    if (status === 'playing') {
+      set({ status: 'paused' });
+    } else if (status === 'paused') {
+      set({ status: 'playing' });
+    }
   },
   update: (deltaTime, input) => {
     const state = get();
@@ -99,6 +108,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     if (input.jump && player.onGround) {
       player.vy = -JUMP_FORCE;
       player.onGround = false;
+      player.isJumping = true;
     }
     // -- APPLY GRAVITY --
     player.vy += GRAVITY * deltaTime;
@@ -158,6 +168,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
               correctedY = blockBounds.top - playerSize;
               player.vy = 0;
               onGround = true;
+              player.isJumping = false;
             } else if (player.vy < 0 && player.y >= blockBounds.bottom) {
               correctedY = blockBounds.bottom;
               player.vy = 0;
@@ -185,6 +196,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     player.x = correctedX;
     player.y = correctedY;
     player.onGround = onGround;
+    if (onGround) {
+      player.isJumping = false;
+    }
     // Fall off map
     if (player.y > LEVEL_HEIGHT * TILE_SIZE) {
       lives -= 1;

@@ -4,11 +4,12 @@ import { Player } from './Player';
 import { Block } from './Block';
 import { Enemy } from './Enemy';
 import { TILE_SIZE } from '@/lib/game/constants';
-import { Heart, Star, Clock } from 'lucide-react';
+import { Heart, Star, Clock, Pause, Play } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileControls } from './MobileControls';
+import { Button } from '@/components/ui/button';
 export const GameCanvas: React.FC = () => {
-  const { update } = useGameStore.getState();
+  const { update, togglePause } = useGameStore.getState();
   const level = useGameStore((s) => s.level);
   const enemies = useGameStore((s) => s.enemies);
   const cameraX = useGameStore((s) => s.cameraX);
@@ -25,6 +26,10 @@ export const GameCanvas: React.FC = () => {
       if (e.key === 'ArrowLeft') inputRef.current.left = true;
       if (e.key === 'ArrowRight') inputRef.current.right = true;
       if (e.key === ' ') inputRef.current.jump = true;
+      if (e.key === 'Escape' || e.key === 'p') {
+        e.preventDefault();
+        togglePause();
+      }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') inputRef.current.left = false;
@@ -37,7 +42,7 @@ export const GameCanvas: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [togglePause]);
   useEffect(() => {
     const gameLoop = (now: number) => {
       const deltaTime = (now - lastTimeRef.current) / 1000;
@@ -62,22 +67,44 @@ export const GameCanvas: React.FC = () => {
     width: `${level[0].length * TILE_SIZE}px`,
     height: `${level.length * TILE_SIZE}px`,
   };
+  const cloudStyle1: React.CSSProperties = {
+    transform: `translateX(-${cameraX * 0.5}px)`,
+  };
+  const cloudStyle2: React.CSSProperties = {
+    transform: `translateX(-${cameraX * 0.2}px)`,
+  };
   return (
     <div className="relative w-full h-full overflow-hidden bg-sky">
-      <div className="absolute top-4 left-4 z-10 flex gap-6 text-white font-bold font-display text-2xl">
-        <div className="flex items-center gap-2">
-          <Star className="w-6 h-6 text-yellow-300" />
-          <span>{String(score).padStart(6, '0')}</span>
+      {/* HUD */}
+      <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center text-white font-bold font-display text-2xl">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Star className="w-6 h-6 text-yellow-300" />
+            <span>{String(score).padStart(6, '0')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Heart className="w-6 h-6 text-red-500" />
+            <span>x {lives}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-6 h-6" />
+            <span>{Math.ceil(time)}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Heart className="w-6 h-6 text-red-500" />
-          <span>x {lives}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="w-6 h-6" />
-          <span>{Math.ceil(time)}</span>
-        </div>
+        <Button onClick={togglePause} size="icon" variant="ghost" className="text-white hover:bg-white/20 hover:text-white">
+          {status === 'playing' ? <Pause /> : <Play />}
+        </Button>
       </div>
+      {/* Parallax Background */}
+      <div className="absolute inset-0 w-full h-full" style={cloudStyle2}>
+        <div className="absolute top-[20%] left-[10%] w-48 h-24 bg-white/50 rounded-full opacity-50" />
+        <div className="absolute top-[30%] left-[70%] w-64 h-32 bg-white/50 rounded-full opacity-50" />
+      </div>
+      <div className="absolute inset-0 w-full h-full" style={cloudStyle1}>
+        <div className="absolute top-[15%] left-[40%] w-56 h-28 bg-white/70 rounded-full opacity-70" />
+        <div className="absolute top-[25%] left-[90%] w-40 h-20 bg-white/70 rounded-full opacity-70" />
+      </div>
+      {/* Game World */}
       <div style={gameWorldStyle} className="relative transition-transform duration-100 ease-linear">
         {level.flat().map((block) => block.type !== 'air' && <Block key={block.id} block={block} />)}
         <Player />

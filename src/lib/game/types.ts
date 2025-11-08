@@ -7,6 +7,7 @@ export interface PlayerState {
   onGround: boolean;
   direction: 'left' | 'right';
   isInvincible: boolean;
+  isJumping: boolean;
 }
 export interface EnemyState {
   id: number;
@@ -16,7 +17,7 @@ export interface EnemyState {
   initialX: number;
   direction: 'left' | 'right';
 }
-export type GameStatus = 'startScreen' | 'playing' | 'gameOver' | 'win';
+export type GameStatus = 'startScreen' | 'playing' | 'gameOver' | 'win' | 'paused';
 export interface LevelBlock {
   type: BlockType;
   x: number;
@@ -38,5 +39,6 @@ export interface GameState {
 export interface GameActions {
   startGame: () => void;
   resetGame: () => void;
+  togglePause: () => void;
   update: (deltaTime: number, input: { left: boolean; right: boolean; jump: boolean }) => void;
 }
