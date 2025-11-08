@@ -1,148 +1,98 @@
-// Home page of the app, Currently a demo page for demonstration.
-// Please rewrite this file to implement your own logic. Do not replace or delete it, simply rewrite this HomePage.tsx file.
-import { useEffect } from 'react'
-import { Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { Toaster, toast } from '@/components/ui/sonner'
-import { create } from 'zustand'
-import { useShallow } from 'zustand/react/shallow'
-import { AppLayout } from '@/components/layout/AppLayout'
-
-// Timer store: independent slice with a clear, minimal API, for demonstration
-type TimerState = {
-  isRunning: boolean;
-  elapsedMs: number;
-  start: () => void;
-  pause: () => void;
-  reset: () => void;
-  tick: (deltaMs: number) => void;
-}
-
-const useTimerStore = create<TimerState>((set) => ({
-  isRunning: false,
-  elapsedMs: 0,
-  start: () => set({ isRunning: true }),
-  pause: () => set({ isRunning: false }),
-  reset: () => set({ elapsedMs: 0, isRunning: false }),
-  tick: (deltaMs) => set((s) => ({ elapsedMs: s.elapsedMs + deltaMs })),
-}))
-
-// Counter store: separate slice to showcase multiple stores without coupling
-type CounterState = {
-  count: number;
-  inc: () => void;
-  reset: () => void;
-}
-
-const useCounterStore = create<CounterState>((set) => ({
-  count: 0,
-  inc: () => set((s) => ({ count: s.count + 1 })),
-  reset: () => set({ count: 0 }),
-}))
-
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
-export function HomePage() {
-  // Select only what is needed to avoid unnecessary re-renders
-  const { isRunning, elapsedMs } = useTimerStore(
-    useShallow((s) => ({ isRunning: s.isRunning, elapsedMs: s.elapsedMs })),
-  )
-  const start = useTimerStore((s) => s.start)
-  const pause = useTimerStore((s) => s.pause)
-  const resetTimer = useTimerStore((s) => s.reset)
-  const count = useCounterStore((s) => s.count)
-  const inc = useCounterStore((s) => s.inc)
-  const resetCount = useCounterStore((s) => s.reset)
-
-  // Drive the timer only while running; avoid update-depth issues with a scoped RAF
-  useEffect(() => {
-    if (!isRunning) return
-    let raf = 0
-    let last = performance.now()
-    const loop = () => {
-      const now = performance.now()
-      const delta = now - last
-      last = now
-      // Read store API directly to keep effect deps minimal and stable
-      useTimerStore.getState().tick(delta)
-      raf = requestAnimationFrame(loop)
-    }
-    raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
-  }, [isRunning])
-
-  const onPleaseWait = () => {
-    inc()
-    if (!isRunning) {
-      start()
-      toast.success('Building your app…', {
-        description: 'Hang tight, we\'re setting everything up.',
-      })
-    } else {
-      pause()
-      toast.info('Taking a short pause', {
-        description: 'We\'ll continue shortly.',
-      })
-    }
-  }
-
-  const formatted = formatDuration(elapsedMs)
-
+import React from 'react';
+import { useGameStore } from '@/lib/game/store';
+import { GameCanvas } from '@/components/game/GameCanvas';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+const StartScreen: React.FC = () => {
+  const startGame = useGameStore((s) => s.startGame);
   return (
-    <AppLayout>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4 overflow-hidden relative">
-        <ThemeToggle />
-        <div className="absolute inset-0 bg-gradient-rainbow opacity-10 dark:opacity-20 pointer-events-none" />
-        <div className="text-center space-y-8 relative z-10 animate-fade-in">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-primary floating">
-              <Sparkles className="w-8 h-8 text-white rotating" />
-            </div>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-            Creating your <span className="text-gradient">app</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto text-pretty">
-            Your application would be ready soon.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button 
-              size="lg"
-              onClick={onPleaseWait}
-              className="btn-gradient px-8 py-4 text-lg font-semibold hover:-translate-y-0.5 transition-all duration-200"
-              aria-live="polite"
-            >
-              Please Wait
-            </Button>
-          </div>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-            <div>
-              Time elapsed: <span className="font-medium tabular-nums text-foreground">{formatted}</span>
-            </div>
-            <div>
-              Coins: <span className="font-medium tabular-nums text-foreground">{count}</span>
-            </div>
-          </div>
-          <div className="flex justify-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => { resetTimer(); resetCount(); toast('Reset complete') }}>
-              Reset
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => { inc(); toast('Coin added') }}>
-              Add Coin
-            </Button>
-          </div>
-        </div>
-        <footer className="absolute bottom-8 text-center text-muted-foreground/80">
-          <p>Powered by Cloudflare</p>
-        </footer>
-        <Toaster richColors closeButton />
+    <div className="w-full h-full bg-sky flex flex-col items-center justify-center text-white p-8">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center"
+      >
+        <h1 className="text-8xl font-display font-bold mb-4 text-yellow-300" style={{ textShadow: '4px 4px 0px rgba(0,0,0,0.2)' }}>
+          Pixel Hopper
+        </h1>
+        <p className="text-2xl mb-12">A playful platformer adventure!</p>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Button
+            onClick={startGame}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold text-2xl px-12 py-8 rounded-lg shadow-lg border-4 border-white/50"
+          >
+            Play Game
+          </Button>
+        </motion.div>
+      </motion.div>
+      <footer className="absolute bottom-4 text-white/70 text-sm">
+        Built with ❤️ at Cloudflare
+      </footer>
+    </div>
+  );
+};
+const GameOverScreen: React.FC<{ message: string }> = ({ message }) => {
+  const resetGame = useGameStore((s) => s.resetGame);
+  const score = useGameStore((s) => s.score);
+  return (
+    <div className="w-full h-full bg-gray-800/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="text-center bg-black/50 p-12 rounded-2xl shadow-2xl"
+      >
+        <h1 className="text-7xl font-display font-bold mb-4">{message}</h1>
+        <p className="text-3xl mb-8">Final Score: {score}</p>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Button
+            onClick={resetGame}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl px-10 py-6 rounded-lg shadow-lg border-4 border-white/50"
+          >
+            Play Again
+          </Button>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+export function HomePage() {
+  const status = useGameStore((s) => s.status);
+  const renderContent = () => {
+    switch (status) {
+      case 'playing':
+        return <GameCanvas />;
+      case 'gameOver':
+        return (
+          <>
+            <GameCanvas />
+            <GameOverScreen message="Game Over" />
+          </>
+        );
+      case 'win':
+        return (
+          <>
+            <GameCanvas />
+            <GameOverScreen message="You Win!" />
+          </>
+        );
+      case 'startScreen':
+      default:
+        return <StartScreen />;
+    }
+  };
+  return (
+    <main className="w-screen h-screen bg-black flex items-center justify-center">
+      <div className="w-full h-full max-w-[1280px] aspect-video relative">
+        {renderContent()}
       </div>
-    </AppLayout>
-  )
+    </main>
+  );
 }

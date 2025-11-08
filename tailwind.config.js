@@ -91,6 +91,11 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+            sky: 'rgb(74, 144, 226)',
+            player: 'rgb(239, 71, 58)',
+            enemy: '#F5A623',
+            ground: '#8B572A',
+            'coin-block': 'rgb(255, 204, 0)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			muted: {
