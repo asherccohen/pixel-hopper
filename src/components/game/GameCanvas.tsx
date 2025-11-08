@@ -8,18 +8,8 @@ import { Heart, Star, Clock, Pause, Play } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileControls } from './MobileControls';
 import { Button } from '@/components/ui/button';
-import { Entity, RenderableType } from '@/lib/game/ecs/types';const level1Data = { _stub: true, init: (...args: unknown[]): void => {console.warn('level1Data.init not implemented', args);
-  },
-
-  getValue: <T = unknown,>(key: string): T | undefined => {
-    console.warn('level1Data.getValue not implemented', key);
-    return undefined;
-  },
-
-  setValue: <T = unknown,>(key: string, value: T): void => {
-    console.warn('level1Data.setValue not implemented', key, value);
-  }
-} as const;type level1DataItem = unknown;interface RenderableEntity {id: Entity;type: RenderableType;x: number;y: number;direction?: 'left' | 'right';isInvincible?: boolean;isJumping?: boolean;onGround?: boolean;isCollected?: boolean;}
+import { level1Data as level1 } from '@/lib/game/levels';
+import { Entity, RenderableType } from '@/lib/game/ecs/types';interface RenderableEntity {id: Entity;type: RenderableType;x: number;y: number;direction?: 'left' | 'right';isInvincible?: boolean;isJumping?: boolean;onGround?: boolean;isCollected?: boolean;}
 const selectRenderableEntities = (state: ReturnType<typeof useGameStore.getState>): RenderableEntity[] => {
   const { world } = state;
   const entities: RenderableEntity[] = [];
@@ -112,8 +102,8 @@ export const GameCanvas: React.FC = () => {
   }, [status, update]);
   const gameWorldStyle: React.CSSProperties = {
     transform: `translateX(-${cameraX}px)`,
-    width: `${level1Data[0].length * TILE_SIZE}px`,
-    height: `${level1Data.length * TILE_SIZE}px`
+    width: `${level1[0].length * TILE_SIZE}px`,
+    height: `${level1.length * TILE_SIZE}px`
   };
   const cloudStyle1: React.CSSProperties = {
     transform: `translateX(-${cameraX * 0.5}px)`
@@ -163,7 +153,7 @@ export const GameCanvas: React.FC = () => {
             case 'ground':
             case 'coin-block':
             case 'goal':
-              return <Block key={entity.id} block={{ type: entity.type, x: entity.x, y: entity.y, id: String(entity.id), isCollected: entity.isCollected }} />;
+              return <Block key={entity.id} block={{ type: entity.type, x: entity.x, y: entity.y, id: entity.id, isCollected: entity.isCollected }} />;
             default:
               return null;
           }

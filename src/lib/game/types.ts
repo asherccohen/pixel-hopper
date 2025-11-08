@@ -1,5 +1,14 @@
 import { World } from './ecs/types';
 export type BlockType = 'air' | 'ground' | 'coin-block' | 'goal';
+
+export interface LevelBlock {
+  id: number;
+  type: BlockType;
+  x: number;
+  y: number;
+  isCollected?: boolean;
+}
+
 export type GameStatus = 'startScreen' | 'playing' | 'gameOver' | 'win' | 'paused';
 export interface GameState {
   status: GameStatus;

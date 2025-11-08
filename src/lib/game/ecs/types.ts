@@ -13,9 +13,7 @@ export type RenderableType = 'player' | 'enemy' | BlockType;
 export interface RenderableComponent {
   type: RenderableType;
 }
-export interface PlayerControlledComponent {
-  // Marker component
-}
+export type PlayerControlledComponent = object;
 export interface PhysicsComponent {
   onGround: boolean;
 }
@@ -36,9 +34,7 @@ export interface StateComponent {
 export interface ScoreValueComponent {
   value: number;
 }
-export interface GoalComponent {
-  // Marker component
-}
+export type GoalComponent = object;
 // WORLD
 export interface World {
   entities: Set<Entity>;
