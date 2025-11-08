@@ -91,68 +91,89 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     else if (status === 'paused') set({ status: 'playing' });
   },
   update: (deltaTime, input) => {
-    const state = get();
-    if (state.status !== 'playing') return;
-    let { world, score, lives, time, invincibilityTimer } = state;
-    // Timer
-    time -= deltaTime;
-    if (time <= 0) {
-      set({ status: 'gameOver', time: 0 });
-      return;
-    }
-    // Invincibility
-    const playerEntity = Array.from(world.components.playerControlled.keys())[0];
-    const playerState = world.components.state.get(playerEntity);
-    if (playerState?.isInvincible) {
-      invincibilityTimer -= deltaTime;
-      if (invincibilityTimer <= 0) {
-        playerState.isInvincible = false;
-        invincibilityTimer = 0;
+    set(state => {
+      if (state.status !== 'playing') return state;
+
+      const { world } = state;
+      let { score, lives, time, invincibilityTimer } = state;
+
+      // Timer
+      time -= deltaTime;
+      if (time <= 0) {
+        return { ...state, status: 'gameOver', time: 0 };
       }
-    }
-    // Systems Execution
-    systems.inputSystem(world, input);
-    systems.aiSystem(world);
-    systems.physicsSystem(world, deltaTime);
-    systems.collisionSystem(
-      world,
-      () => { // onPlayerHit
+
+      // Invincibility
+      const playerEntity = Array.from(world.components.playerControlled.keys())[0];
+      const playerState = world.components.state.get(playerEntity);
+      if (playerState?.isInvincible) {
+        invincibilityTimer -= deltaTime;
+        if (invincibilityTimer <= 0) {
+          playerState.isInvincible = false;
+          invincibilityTimer = 0;
+        }
+      }
+
+      // Systems Execution
+      systems.inputSystem(world, input);
+      systems.aiSystem(world);
+      systems.physicsSystem(world, deltaTime);
+
+      let playerHit = false;
+      let goalReached = false;
+      let stompedEnemies: Entity[] = [];
+      let collectedCoins: Entity[] = [];
+
+      systems.collisionSystem(
+        world,
+        () => { playerHit = true; },
+        (enemy) => { stompedEnemies.push(enemy); },
+        (coin) => { collectedCoins.push(coin); },
+        () => { goalReached = true; }
+      );
+
+      if (playerHit) {
         lives -= 1;
         if (playerState) playerState.isInvincible = true;
         invincibilityTimer = INVINCIBILITY_DURATION;
         if (lives <= 0) {
-          set({ status: 'gameOver', lives: 0 });
+          return { ...state, status: 'gameOver', lives: 0 };
         }
-      },
-      (enemy) => { // onEnemyStomp
+      }
+
+      stompedEnemies.forEach(enemy => {
         world.entities.delete(enemy);
         const scoreVal = world.components.scoreValue.get(enemy);
         if (scoreVal) score += scoreVal.value;
-      },
-      (coin) => { // onCoinCollect
+      });
+
+      collectedCoins.forEach(coin => {
         const coinState = world.components.state.get(coin);
         if (coinState) coinState.isCollected = true;
         const scoreVal = world.components.scoreValue.get(coin);
         if (scoreVal) score += scoreVal.value;
-      },
-      () => { // onGoalReached
-        set({ status: 'win' });
+      });
+
+      if (goalReached) {
+        return { ...state, status: 'win' };
       }
-    );
-    // Player fall off map
-    const playerPos = world.components.position.get(playerEntity);
-    if (playerPos && playerPos.y > LEVEL_HEIGHT * TILE_SIZE) {
-      lives -= 1;
-      if (lives <= 0) {
-        set({ status: 'gameOver', lives: 0 });
-        return;
+
+      // Player fall off map
+      const playerPos = world.components.position.get(playerEntity);
+      if (playerPos && playerPos.y > LEVEL_HEIGHT * TILE_SIZE) {
+        lives -= 1;
+        if (lives <= 0) {
+          return { ...state, status: 'gameOver', lives: 0 };
+        }
+        // Reset player position
+        world.components.position.set(playerEntity, { x: TILE_SIZE * 2, y: TILE_SIZE * (LEVEL_HEIGHT - 4) });
+        world.components.velocity.set(playerEntity, { vx: 0, vy: 0 });
       }
-      // Reset player position
-      world.components.position.set(playerEntity, { x: TILE_SIZE * 2, y: TILE_SIZE * (LEVEL_HEIGHT - 4) });
-      world.components.velocity.set(playerEntity, { vx: 0, vy: 0 });
-    }
-    // Camera
-    const cameraX = playerPos ? Math.max(0, playerPos.x - window.innerWidth / 2) : state.cameraX;
-    set({ world, score, lives, time, invincibilityTimer, cameraX });
+
+      // Camera
+      const cameraX = playerPos ? Math.max(0, playerPos.x - window.innerWidth / 2) : state.cameraX;
+
+      return { ...state, world, score, lives, time, invincibilityTimer, cameraX };
+    });
   },
 }));
