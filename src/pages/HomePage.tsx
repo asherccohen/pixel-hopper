@@ -35,11 +35,11 @@ const StartScreen: React.FC = () => {
     </div>
   );
 };
-const GameOverScreen: React.FC<{ message: string }> = ({ message }) => {
+const EndScreen: React.FC<{ message: string }> = ({ message }) => {
   const resetGame = useGameStore((s) => s.resetGame);
   const score = useGameStore((s) => s.score);
   return (
-    <div className="w-full h-full bg-gray-800/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-8">
+    <div className="absolute inset-0 w-full h-full bg-gray-800/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-8 z-20">
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -65,33 +65,23 @@ const GameOverScreen: React.FC<{ message: string }> = ({ message }) => {
 };
 export function HomePage() {
   const status = useGameStore((s) => s.status);
-  const renderContent = () => {
-    switch (status) {
-      case 'playing':
-        return <GameCanvas />;
-      case 'gameOver':
-        return (
-          <>
-            <GameCanvas />
-            <GameOverScreen message="Game Over" />
-          </>
-        );
-      case 'win':
-        return (
-          <>
-            <GameCanvas />
-            <GameOverScreen message="You Win!" />
-          </>
-        );
-      case 'startScreen':
-      default:
-        return <StartScreen />;
-    }
-  };
   return (
     <main className="w-screen h-screen bg-black flex items-center justify-center">
       <div className="w-full h-full max-w-[1280px] aspect-video relative">
-        {renderContent()}
+        {status === 'startScreen' && <StartScreen />}
+        {status === 'playing' && <GameCanvas />}
+        {status === 'gameOver' && (
+          <>
+            <GameCanvas />
+            <EndScreen message="Game Over" />
+          </>
+        )}
+        {status === 'win' && (
+          <>
+            <GameCanvas />
+            <EndScreen message="You Win!" />
+          </>
+        )}
       </div>
     </main>
   );
