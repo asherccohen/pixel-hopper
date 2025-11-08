@@ -125,10 +125,10 @@ export function collisionSystem(world: World, onPlayerHit: () => void, onEnemySt
           playerPos.y = blockBounds.bottom;
           playerVel.vy = 0;
         } else if (playerVel.vx > 0 && playerBounds.right > blockBounds.left) {
-          playerPos.x = blockBounds.left - playerCol.width - (TILE_SIZE - playerCol.width) / 2;
+          playerPos.x = blockBounds.left - playerCol.width;
           playerVel.vx = 0;
         } else if (playerVel.vx < 0 && playerBounds.left < blockBounds.right) {
-          playerPos.x = blockBounds.right - (TILE_SIZE - playerCol.width) / 2;
+          playerPos.x = blockBounds.right;
           playerVel.vx = 0;
         }
       }
