@@ -8,18 +8,18 @@ import { Heart, Star, Clock, Pause, Play } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileControls } from './MobileControls';
 import { Button } from '@/components/ui/button';
-import { Entity, RenderableType } from '@/lib/game/ecs/types';
-interface RenderableEntity {
-  id: Entity;
-  type: RenderableType;
-  x: number;
-  y: number;
-  direction?: 'left' | 'right';
-  isInvincible?: boolean;
-  isJumping?: boolean;
-  onGround?: boolean;
-  isCollected?: boolean;
-}
+import { Entity, RenderableType } from '@/lib/game/ecs/types';const level1Data = { _stub: true, init: (...args: unknown[]): void => {console.warn('level1Data.init not implemented', args);
+  },
+
+  getValue: <T = unknown,>(key: string): T | undefined => {
+    console.warn('level1Data.getValue not implemented', key);
+    return undefined;
+  },
+
+  setValue: <T = unknown,>(key: string, value: T): void => {
+    console.warn('level1Data.setValue not implemented', key, value);
+  }
+} as const;type level1DataItem = unknown;interface RenderableEntity {id: Entity;type: RenderableType;x: number;y: number;direction?: 'left' | 'right';isInvincible?: boolean;isJumping?: boolean;onGround?: boolean;isCollected?: boolean;}
 const selectRenderableEntities = (state: ReturnType<typeof useGameStore.getState>): RenderableEntity[] => {
   const { world } = state;
   const entities: RenderableEntity[] = [];
@@ -30,7 +30,7 @@ const selectRenderableEntities = (state: ReturnType<typeof useGameStore.getState
       id: entity,
       type: renderable.type,
       x: position.x,
-      y: position.y,
+      y: position.y
     };
     if (renderable.type === 'player') {
       const stateComp = world.components.state.get(entity);
@@ -39,18 +39,18 @@ const selectRenderableEntities = (state: ReturnType<typeof useGameStore.getState
         direction: stateComp?.direction || 'right',
         isInvincible: stateComp?.isInvincible || false,
         isJumping: stateComp?.isJumping || false,
-        onGround: physicsComp?.onGround || false,
+        onGround: physicsComp?.onGround || false
       });
     } else if (renderable.type === 'enemy') {
       const aiComp = world.components.aiControlled.get(entity);
       Object.assign(baseEntity, {
-        direction: aiComp?.direction || 'left',
+        direction: aiComp?.direction || 'left'
       });
     } else if (renderable.type === 'coin-block') {
-        const stateComp = world.components.state.get(entity);
-        Object.assign(baseEntity, {
-            isCollected: stateComp?.isCollected || false,
-        });
+      const stateComp = world.components.state.get(entity);
+      Object.assign(baseEntity, {
+        isCollected: stateComp?.isCollected || false
+      });
     }
     entities.push(baseEntity);
   }
@@ -113,17 +113,17 @@ export const GameCanvas: React.FC = () => {
   const gameWorldStyle: React.CSSProperties = {
     transform: `translateX(-${cameraX}px)`,
     width: `${level1Data[0].length * TILE_SIZE}px`,
-    height: `${level1Data.length * TILE_SIZE}px`,
+    height: `${level1Data.length * TILE_SIZE}px`
   };
   const cloudStyle1: React.CSSProperties = {
-    transform: `translateX(-${cameraX * 0.5}px)`,
+    transform: `translateX(-${cameraX * 0.5}px)`
   };
   const cloudStyle2: React.CSSProperties = {
-    transform: `translateX(-${cameraX * 0.2}px)`,
+    transform: `translateX(-${cameraX * 0.2}px)`
   };
   return (
     <div className="relative w-full h-full overflow-hidden bg-sky">
-      {/* HUD */}
+      {}
       <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center text-white font-bold font-display text-2xl">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export const GameCanvas: React.FC = () => {
           {status === 'playing' ? <Pause /> : <Play />}
         </Button>
       </div>
-      {/* Parallax Background */}
+      {}
       <div className="absolute inset-0 w-full h-full" style={cloudStyle2}>
         <div className="absolute top-[20%] left-[10%] w-48 h-24 bg-white/50 rounded-full opacity-50" />
         <div className="absolute top-[30%] left-[70%] w-64 h-32 bg-white/50 rounded-full opacity-50" />
@@ -152,7 +152,7 @@ export const GameCanvas: React.FC = () => {
         <div className="absolute top-[15%] left-[40%] w-56 h-28 bg-white/70 rounded-full opacity-70" />
         <div className="absolute top-[25%] left-[90%] w-40 h-20 bg-white/70 rounded-full opacity-70" />
       </div>
-      {/* Game World */}
+      {}
       <div style={gameWorldStyle} className="relative transition-transform duration-100 ease-linear">
         {renderableEntities.map((entity) => {
           switch (entity.type) {
@@ -170,6 +170,6 @@ export const GameCanvas: React.FC = () => {
         })}
       </div>
       {isMobile && <MobileControls inputRef={inputRef} />}
-    </div>
-  );
+    </div>);
+
 };
