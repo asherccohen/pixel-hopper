@@ -55,6 +55,7 @@ const createInitialWorld = (): World => {
         world.components.velocity.set(entity, { vx: -ENEMY_SPEED, vy: 0 });
         world.components.aiControlled.set(entity, { initialX: x * TILE_SIZE, direction: 'left' });
         world.components.scoreValue.set(entity, { value: 200 });
+        world.components.collision.set(entity, { width: TILE_SIZE, height: TILE_SIZE });
       } else {
         world.components.renderable.set(entity, { type });
       }
