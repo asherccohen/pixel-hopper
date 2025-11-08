@@ -5,6 +5,8 @@ import { Block } from './Block';
 import { Enemy } from './Enemy';
 import { TILE_SIZE } from '@/lib/game/constants';
 import { Heart, Star, Clock } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileControls } from './MobileControls';
 export const GameCanvas: React.FC = () => {
   const { update } = useGameStore.getState();
   const level = useGameStore((s) => s.level);
@@ -14,6 +16,7 @@ export const GameCanvas: React.FC = () => {
   const lives = useGameStore((s) => s.lives);
   const time = useGameStore((s) => s.time);
   const status = useGameStore((s) => s.status);
+  const isMobile = useIsMobile();
   const inputRef = useRef({ left: false, right: false, jump: false });
   const lastTimeRef = useRef(performance.now());
   const gameLoopRef = useRef<number>();
@@ -80,6 +83,7 @@ export const GameCanvas: React.FC = () => {
         <Player />
         {enemies.map((enemy) => <Enemy key={enemy.id} enemy={enemy} />)}
       </div>
+      {isMobile && <MobileControls inputRef={inputRef} />}
     </div>
   );
 };
