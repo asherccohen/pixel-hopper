@@ -47,7 +47,8 @@ const selectRenderableEntities = (state: ReturnType<typeof useGameStore.getState
   return entities;
 };
 export const GameCanvas: React.FC = () => {
-  const { update, togglePause } = useGameStore.getState();
+  const update = useGameStore((s) => s.update);
+  const togglePause = useGameStore((s) => s.togglePause);
   const cameraX = useGameStore((s) => s.cameraX);
   const score = useGameStore((s) => s.score);
   const lives = useGameStore((s) => s.lives);
