@@ -126,6 +126,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
 
       systems.collisionSystem(
         world,
+        deltaTime,
         () => { playerHit = true; },
         (enemy) => { stompedEnemies.push(enemy); },
         (coin) => { collectedCoins.push(coin); },
@@ -171,7 +172,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       }
 
       // Camera
-      const cameraX = playerPos ? Math.max(0, playerPos.x - window.innerWidth / 2) : state.cameraX;
+      const cameraX = playerPos ? Math.max(0, playerPos.x - 1280 / 2) : state.cameraX;
 
       return { ...state, world: { ...world }, score, lives, time, invincibilityTimer, cameraX };
     });

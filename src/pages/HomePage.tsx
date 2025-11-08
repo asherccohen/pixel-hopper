@@ -99,6 +99,7 @@ const PauseMenu: React.FC = () => {
 };
 export function HomePage() {
   const status = useGameStore((s) => s.status);
+  console.log('Game status:', status);
   return (
     <main className="w-screen h-screen bg-black flex items-center justify-center">
       <div className="w-full h-full max-w-[1280px] aspect-video relative">

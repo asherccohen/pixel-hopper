@@ -87,9 +87,7 @@ export const GameCanvas: React.FC = () => {
       const deltaTime = (now - lastTimeRef.current) / 1000;
       lastTimeRef.current = now;
       update(deltaTime, inputRef.current);
-      if (useGameStore.getState().status === 'playing') {
-        gameLoopRef.current = requestAnimationFrame(gameLoop);
-      }
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
     if (status === 'playing') {
       lastTimeRef.current = performance.now();

@@ -66,7 +66,7 @@ export function physicsSystem(world: World, deltaTime: number): void {
   }
 }
 // Collision System: Handles interactions between entities
-export function collisionSystem(world: World, onPlayerHit: () => void, onEnemyStomp: (enemy: Entity) => void, onCoinCollect: (coin: Entity) => void, onGoalReached: () => void): void {
+export function collisionSystem(world: World, deltaTime: number, onPlayerHit: () => void, onEnemyStomp: (enemy: Entity) => void, onCoinCollect: (coin: Entity) => void, onGoalReached: () => void): void {
   const playerEntities = Array.from(world.components.playerControlled.keys());
   if (playerEntities.length === 0) return;
   const player = playerEntities[0];
@@ -77,8 +77,8 @@ export function collisionSystem(world: World, onPlayerHit: () => void, onEnemySt
   const playerPhysics = world.components.physics.get(player);
   if (!playerPos || !playerVel || !playerCol || !playerState || !playerPhysics) return;
   const playerBounds = {
-    left: playerPos.x + (TILE_SIZE - playerCol.width) / 2,
-    right: playerPos.x + (TILE_SIZE - playerCol.width) / 2 + playerCol.width,
+    left: playerPos.x,
+    right: playerPos.x + playerCol.width,
     top: playerPos.y,
     bottom: playerPos.y + playerCol.height,
   };
@@ -115,7 +115,7 @@ export function collisionSystem(world: World, onPlayerHit: () => void, onEnemySt
         }
       }
       if (blockRenderable.type === 'ground' || (blockRenderable.type === 'coin-block' && blockState?.isCollected)) {
-        const prevPlayerBottom = playerBounds.bottom - playerVel.vy * 0.016; // Approx last frame
+        const prevPlayerBottom = playerBounds.bottom - playerVel.vy * deltaTime;
         if (playerVel.vy >= 0 && prevPlayerBottom <= blockBounds.top) {
           playerPos.y = blockBounds.top - playerCol.height;
           playerVel.vy = 0;
@@ -124,10 +124,10 @@ export function collisionSystem(world: World, onPlayerHit: () => void, onEnemySt
         } else if (playerVel.vy < 0 && playerPos.y >= blockBounds.bottom) {
           playerPos.y = blockBounds.bottom;
           playerVel.vy = 0;
-        } else if (playerVel.vx > 0 && playerBounds.right > blockBounds.left) {
+        } else if (playerVel.vx > 0 && playerBounds.right > blockBounds.left && playerBounds.left < blockBounds.left) {
           playerPos.x = blockBounds.left - playerCol.width;
           playerVel.vx = 0;
-        } else if (playerVel.vx < 0 && playerBounds.left < blockBounds.right) {
+        } else if (playerVel.vx < 0 && playerBounds.left < blockBounds.right && playerBounds.right > blockBounds.right) {
           playerPos.x = blockBounds.right;
           playerVel.vx = 0;
         }
