@@ -1,6 +1,6 @@
 # Pixel Hopper
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/asherccohen/pixel-hopper)
 
 Pixel Hopper is a delightful 2D platformer game inspired by classic side-scrollers like Super Mario. The application features a single, playable level where the user controls a character named 'Pip'. Pip can run left and right, and jump to navigate the world. The world is constructed from various types of blocks: solid ground blocks, collectible coin blocks, and empty-air blocks. The level also features simple enemies that patrol back and forth. The player's objective is to navigate from the start of the level to the end goal, collecting coins for points and stomping on enemies to defeat them.
 
@@ -77,7 +77,7 @@ This command will build the application and deploy it using Wrangler.
 
 Alternatively, you can deploy directly from your GitHub repository with a single click.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/asherccohen/pixel-hopper)
 
 ## ⚖️ License
 
